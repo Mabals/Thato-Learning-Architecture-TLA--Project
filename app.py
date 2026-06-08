@@ -12,7 +12,7 @@ app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "ThatoSecret1024SystemMasterKey")
 
 # Configure the free Gemini API
-client = genai.Client(api_key="AQ.Ab8RN6K6XQB-52ScmZd9aKWmGuITH955LlxSMYsNK_sw-TzxUw")
+client = genai.Client(api_key="Your Api Key Here")
 
 # 📂 Configure Secure File Upload Target Destination Mapping
 UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static/uploads')
