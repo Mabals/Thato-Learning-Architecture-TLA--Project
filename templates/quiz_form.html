@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TLA Examination Engine</title>
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: #151d30;
+            --accent-blue: #0070f3;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); padding: 40px; display: flex; justify-content: center; }
+        .quiz-container { width: 100%; max-width: 750px; background-color: var(--bg-card); border: 1px solid #223150; padding: 40px; border-radius: 12px; }
+        .question-card { background-color: #0b0f19; border: 1px solid #1e2942; padding: 20px; border-radius: 8px; margin-bottom: 25px; }
+        .option-label { display: block; background: #1a233a; padding: 12px; margin-top: 8px; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+        .option-label:hover { background: #223150; }
+        .text-writer { width: 100%; background: #0b0f19; border: 1px solid #223150; border-radius: 6px; color: white; padding: 15px; margin-top: 10px; font-size: 0.95rem; }
+        .submit-btn { width: 100%; background: var(--accent-blue); color: white; border: none; padding: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 1rem; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <h2 style="margin-bottom: 5px;">📜 {{ module.ModuleName }}</h2>
+        <p style="color: var(--text-muted); margin-bottom: 30px;">Evaluation Modality Classification: <strong>Custom Mixed Section Environment</strong></p>
+
+        <form action="/submit_quiz" method="POST">
+            <input type="hidden" name="module_id" value="{{ module.ModuleID }}">
+
+            {% for q in questions %}
+            <div class="question-card">
+                <p style="font-size: 1.05rem; font-weight: 600; margin-bottom: 12px;">Step {{ loop.index }}: {{ q.QuestionText }}</p>
+                
+                {% if q.QuestionType == 'MCQ' %}
+                    <label class="option-label"><input type="radio" name="question_{{ q.QuestionID }}" value="A" required> A) {{ q.OptionA }}</label>
+                    <label class="option-label"><input type="radio" name="question_{{ q.QuestionID }}" value="B"> B) {{ q.OptionB }}</label>
+                    <label class="option-label"><input type="radio" name="question_{{ q.QuestionID }}" value="C"> C) {{ q.OptionC }}</label>
+                    <label class="option-label"><input type="radio" name="question_{{ q.QuestionID }}" value="D"> D) {{ q.OptionD }}</label>
+                {% else %}
+                    <label style="font-size: 0.85rem; color: var(--text-muted);">Provide your comprehensive analysis answer response below:</label>
+                    <textarea name="question_{{ q.QuestionID }}" class="text-writer" rows="4" placeholder="Type your core verification notes here..." required></textarea>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="submit-btn">Finalize and Submit Examination Papers</button>
+        </form>
+    </div>
+
+</body>
+</html>

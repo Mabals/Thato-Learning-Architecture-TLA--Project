@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ module.ModuleName }} Hub</title>
+    <style>
+        :root { --bg-main: #0b0f19; --bg-card: #151d30; --accent-blue: #0070f3; --accent-green: #00e676; --accent-amber: #ffb300; --text-main: #f3f4f6; }
+        body { background-color: var(--bg-main); color: var(--text-main); font-family: 'Segoe UI', sans-serif; padding: 40px; }
+        .back-link { text-decoration: none; color: #9ca3af; font-size: 0.9rem; display: inline-block; margin-bottom: 20px; }
+        .header { border-bottom: 1px solid #223150; padding-bottom: 20px; margin-bottom: 30px; }
+        .content-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .section-card { background: var(--bg-card); border: 1px solid #223150; border-radius: 12px; padding: 25px; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; background: #0b0f19; padding: 12px; margin-bottom: 10px; border-radius: 6px; }
+        .btn { background: var(--accent-blue); color: white; padding: 10px 20px; border: none; border-radius: 6px; text-decoration: none; font-weight: bold; cursor: pointer; display: inline-block; }
+    </style>
+</head>
+<body>
+
+    <a href="/dashboard" class="back-link">← Back to Main Dashboard Directory</a>
+    
+    <div class="header">
+        <span style="background: rgba(0,112,243,0.2); color: #3b82f6; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">{{ module.Category }}</span>
+        <h1 style="margin-top: 10px;">🎯 Workspace Hub: {{ module.ModuleName }}</h1>
+        <p style="color: #9ca3af; margin-top: 5px;">Complexity: <strong>{{ module.DifficultyLevel }}</strong> | Target Task: <strong>{{ module.AssessmentType }}</strong></p>
+    </div>
+
+    <div class="content-sections">
+        <div class="section-card">
+            <h3 style="color: var(--accent-green); margin-bottom: 15px;">📂 Core Documentations & Guides</h3>
+            {% for doc in documents %}
+                <div class="item-row">
+                    <span>📄 {{ doc.Title }}</span>
+                    <a href="{{ doc.URL }}" target="_blank" style="color: var(--accent-blue); text-decoration: none;">Download ↗</a>
+                </div>
+            {% else %}
+                <p style="color: #9ca3af; font-style: italic;">No core documentation packages standard here.</p>
+            {% endfor %}
+        </div>
+
+        <div class="section-card">
+            <h3 style="color: #3b82f6; margin-bottom: 15px;">🎬 Playback Streams & Materials</h3>
+            {% for vid in videos %}
+                <div class="item-row">
+                    <span>🎥 {{ vid.Title }}</span>
+                    <a href="{{ vid.URL }}" target="_blank" style="color: var(--accent-blue); text-decoration: none;">Stream Video ↗</a>
+                </div>
+            {% else %}
+                <p style="color: #9ca3af; font-style: italic;">No streaming video packages active.</p>
+            {% endfor %}
+        </div>
+
+        <div class="section-card" style="grid-column: span 2;">
+            <h3 style="color: var(--accent-amber); margin-bottom: 15px;">📼 Historical Class Sync Recording Vault</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                {% for rec in recordings %}
+                    <div class="item-row" style="margin-bottom: 0;">
+                        <div>
+                            <p style="font-weight: bold;">📼 {{ rec.Title }}</p>
+                            <span style="font-size: 0.75rem; color: #9ca3af;">Recorded on: {{ rec.Date }}</span>
+                        </div>
+                        <a href="{{ rec.URL }}" target="_blank" class="btn" style="padding: 6px 12px; font-size: 0.85rem;">Play Archive</a>
+                    </div>
+                {% else %}
+                    <p style="color: #9ca3af; font-style: italic; grid-column: span 2;">No historical lecture records cataloged yet inside this workspace track.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="section-card" style="grid-column: span 2; background: linear-gradient(135deg, #151d30 0%, #1c263f 100%); text-align: center; padding: 40px 20px;">
+            <h2 style="color: var(--accent-amber); margin-bottom: 10px;">📝 Core Performance Evaluation Tasks</h2>
+            <p style="color: #9ca3af; margin-bottom: 20px;">Active Window Boundary: {{ module.StartStr }} to {{ module.EndStr }}</p>
+            
+            {% if is_locked_by_date %}
+                <button class="btn" style="background-color: #ff5555; cursor: not-allowed;" disabled>{{ lock_reason }}</button>
+            {% elif questions_count > 0 %}
+                <a href="/quiz/{{ module.ModuleID }}" class="btn" style="background-color: var(--accent-amber); color: #0b0f19; font-size: 1.1rem; padding: 12px 30px;">Initialize Assessment Paper Tasks</a>
+            {% else %}
+                <button class="btn" style="background-color: #223150; color: #9ca3af; cursor: not-allowed;" disabled>No Evaluation Records Configured</button>
+            {% endif %}
+        </div>
+    </div>
+
+</body>
+</html>

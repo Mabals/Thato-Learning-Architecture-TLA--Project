@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review & Edit AI Extraction</title>
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: #151d30;
+            --accent-blue: #0070f3;
+            --accent-green: #00e676;
+            --accent-amber: #ffb300;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); padding: 40px; display: flex; justify-content: center; }
+        .review-container { width: 100%; max-width: 850px; background-color: var(--bg-card); border: 1px solid #223150; padding: 40px; border-radius: 12px; }
+        .question-editable-card { background: #0b0f19; border: 1px solid #1e2942; border-left: 5px solid var(--accent-blue); padding: 20px; border-radius: 8px; margin-bottom: 25px; transition: border-left-color 0.2s ease; }
+        .question-editable-card.written-selected { border-left-color: var(--accent-amber); }
+        .form-control { width: 100%; background-color: var(--bg-card); border: 1px solid #223150; padding: 10px; border-radius: 6px; color: white; margin-bottom: 12px; font-size: 0.95rem; }
+        .form-control:focus { border-color: var(--accent-blue); outline: none; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .save-btn { width: 100%; background: var(--accent-green); color: #0b0f19; border: none; padding: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
+        .save-btn:hover { background: #00c853; }
+        .hidden-group { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="review-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #223150; padding-bottom: 15px;">
+            <div>
+                <h2>🛠️ Verification & Review Workbench</h2>
+                <p style="color: var(--text-muted); margin-top: 4px;">Review Gemini's extractions below. Modify text fields or toggle styles directly before database execution mapping.</p>
+            </div>
+            <a href="/admin/generator" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">✕ Re-generate</a>
+        </div>
+
+        <form action="/admin/save_generated_assessment" method="POST">
+            <input type="hidden" name="module_id" value="{{ module_id }}">
+            <input type="hidden" name="assessment_type" value="{{ assessment_type }}">
+
+            {% for q in questions %}
+            <div class="question-editable-card {% if q.type == 'Written' %}written-selected{% endif %}">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <strong>Block #{{ loop.index }}</strong>
+                    <select name="type" class="form-control type-selector" style="width: 160px; margin: 0;">
+                        <option value="MCQ" {% if q.type == 'MCQ' %}selected{% endif %}>MCQ Style</option>
+                        <option value="Written" {% if q.type == 'Written' %}selected{% endif %}>Written Style</option>
+                    </select>
+                </div>
+
+                <label style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">Question Instruction Text:</label>
+                <input type="text" name="text" value="{{ q.text }}" class="form-control" required>
+
+                <div class="mcq-interactive-wrapper {% if q.type == 'Written' %}hidden-group{% endif %}">
+                    <label style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px;">Multiple Choice Option Targets:</label>
+                    <div class="options-grid">
+                        <input type="text" name="opt_a" value="{{ q.opt_a if q.opt_a else '' }}" placeholder="Option A" class="form-control opt-field">
+                        <input type="text" name="opt_b" value="{{ q.opt_b if q.opt_b else '' }}" placeholder="Option B" class="form-control opt-field">
+                        <input type="text" name="opt_c" value="{{ q.opt_c if q.opt_c else '' }}" placeholder="Option C" class="form-control opt-field">
+                        <input type="text" name="opt_d" value="{{ q.opt_d if q.opt_d else '' }}" placeholder="Option D" class="form-control opt-field">
+                    </div>
+                    
+                    <div style="width: 200px;">
+                        <label style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">Assigned Correct Key Signature Answer:</label>
+                        <select name="correct_option" class="form-control target-key-selector">
+                            <option value="A" {% if q.correct_option == 'A' %}selected{% endif %}>Key: A</option>
+                            <option value="B" {% if q.correct_option == 'B' %}selected{% endif %}>Key: B</option>
+                            <option value="C" {% if q.correct_option == 'C' %}selected{% endif %}>Key: C</option>
+                            <option value="D" {% if q.correct_option == 'D' %}selected{% endif %}>Key: D</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="save-btn">Approve and Commit Questions to SQL Database</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const selectors = document.querySelectorAll('.type-selector');
+            
+            selectors.forEach(select => {
+                select.addEventListener('change', function() {
+                    const card = this.closest('.question-editable-card');
+                    const mcqWrapper = card.querySelector('.mcq-interactive-wrapper');
+                    const optFields = card.querySelectorAll('.opt-field');
+                    const keySelector = card.querySelector('.target-key-selector');
+
+                    if (this.value === 'Written') {
+                        // Switch styles and hide configuration options
+                        card.classList.add('written-selected');
+                        mcqWrapper.classList.add('hidden-group');
+                        
+                        // Strip required attributes and flush string components to keep standard string lengths fully intact
+                        optFields.forEach(input => {
+                            input.removeAttribute('required');
+                            input.value = '';
+                        });
+                        keySelector.value = '';
+                    } else {
+                        // Restore properties for MCQ styling
+                        card.classList.remove('written-selected');
+                        mcqWrapper.classList.remove('hidden-group');
+                        
+                        optFields.forEach(input => {
+                            input.setAttribute('required', 'required');
+                        });
+                        keySelector.value = 'A'; // Set default standard index key template signature
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TLA Portal - Authentication Gateway</title>
+    <style>
+        :root {
+            --bg-glow: #070a13;
+            --bg-card: rgba(21, 29, 48, 0.7);
+            --accent-neon: #00e676;
+            --accent-blue: #0070f3;
+            --text-main: #f3f4f6;
+            --text-muted: #6b7280;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+
+        body {
+            background-color: var(--bg-glow);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient Cyber Grid Background Effect */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(rgba(0, 112, 243, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 112, 243, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            top: -50%;
+            left: -50%;
+            transform: rotate(15deg);
+            z-index: 1;
+        }
+
+        .login-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid #223150;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 50px rgba(0, 112, 243, 0.1);
+            position: relative;
+        }
+
+        /* Subtle neon accent strip at the top edge */
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, var(--accent-blue), var(--accent-neon));
+            border-radius: 16px 16px 0 0;
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .brand-header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, #ffffff, #9ca3af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-header p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #9ca3af;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(11, 15, 25, 0.8);
+            border: 1px solid #223150;
+            padding: 14px 16px;
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(0, 112, 243, 0.25);
+            background: #0b0f19;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-blue), #0056b3);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 112, 243, 0.3);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 112, 243, 0.45);
+            background: linear-gradient(135deg, #007bf3, var(--accent-blue));
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .flash-alert {
+            background: rgba(255, 85, 85, 0.1);
+            border: 1px solid var(--accent-red);
+            color: #ff7777;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="brand-header">
+                <h1>TLA ARCHITECTURE</h1>
+                <p>Enterprise Skill Hub</p>
+            </div>
+
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div class="flash-alert">{{ messages[0] }}</div>
+              {% endif %}
+            {% endwith %}
+
+            <form action="/login" method="POST">
+                <div class="form-group">
+                    <label>Enterprise Email Address</label>
+                    <input type="email" name="email" class="input-field" placeholder="name@tla.co.za" required autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label>Security Access Code</label>
+                    <input type="password" name="password" class="input-field" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn-submit">Initialize Session</button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
